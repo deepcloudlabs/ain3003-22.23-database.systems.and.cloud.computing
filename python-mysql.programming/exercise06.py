@@ -8,11 +8,9 @@ my_connection = connector.connect(
 )
 my_cursor = my_connection.cursor()
 my_cursor.execute("""
-  select code,name,continent,population 
-  from country
-  where population > 50000000 
-  AND Continent in ( 'Europe' , 'Africa' )
-  limit 10
+  select id,name,population 
+  from city
+  where name in ( 'Istanbul' , 'Ankara', 'Izmir' )
 """)
 for row in my_cursor:
-    print(f"{row[1]}\t{row[2]}\t{row[3]}")
+    print(f"{row[0]}\t{row[1]}\t{row[2]}")
