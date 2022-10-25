@@ -6,7 +6,12 @@ my_connection = connector.connect(
     password="Secret_123",
     database="banking"
 )
+
 my_cursor = my_connection.cursor()
+
+"""
+create a table
+"""
 my_cursor.execute("""
 create table accounts (
    iban varchar(32) primary key,

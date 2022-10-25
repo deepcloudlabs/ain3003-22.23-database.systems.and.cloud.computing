@@ -7,11 +7,16 @@ my_connection = connector.connect(
     database="banking"
 )
 my_cursor = my_connection.cursor()
+
+"""
+list all accounts with non-zero balance
+"""
 my_cursor.execute("""
   select iban,balance 
   from accounts
   where balance > 0.0
   order by balance desc
 """)
+
 for row in my_cursor:
     print(f"{row[0]}\t{row[1]}")
