@@ -12,8 +12,6 @@ my_cursor = my_connection.cursor()
 """
 Sort the countries by their population densities in descending order ignoring zero population countries
 """
-my_cursor.execute("set session sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))")
-
 my_cursor.execute("""
     select co.name, (co.population/co.surfacearea) as density 
     from country co
