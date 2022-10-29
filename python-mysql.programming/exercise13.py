@@ -16,7 +16,7 @@ my_cursor.execute("""
   select co.name, ci.name, ci.population
   from city ci, country co 
   where ci.id = co.capital
-  order by population desc
+  order by ci.population desc
   limit 1
 """)
 
