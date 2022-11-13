@@ -1,0 +1,7 @@
+eventlet
+Flask
+flask-cors
+flask-socketio
+requests
+schedule
+websockets
