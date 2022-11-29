@@ -1,3 +1,9 @@
+#region Kafka
+from kafka import KafkaProducer
+
+producer = KafkaProducer(bootstrap_servers=["localhost:9092"], value_serializer=lambda m: json.dumps(m).encode('utf-8'))
+#endregion
+
 # region MongoDB
 # DDD              : Domain Entity
 # REST Architecture: Resource
@@ -46,7 +52,7 @@ def extract_employee_from_request(request, fields):
         emp["_id"] = emp["identity"]
     return emp
 
-
+# http://localhost:8100/hr/api/v1/employees/1
 @api.route("/hr/api/v1/employees/<id>", methods=["GET"])
 def get_employee_by_identity(id):
     return jsonify(employees.find_one({"_id": id})) \
@@ -68,10 +74,12 @@ def get_employees():
 def add_employee():
     emp = extract_employee_from_request(request, fields)
     employees.insert_one(emp)
-    return jsonify({"status": "ok"})
+    producer.send("hr-events",
+                  value={"identity": emp["_id"], "eventType": "HIRE_EMPLOYEE"})
+    return jsonify(emp)
 
 
-@api.route("/hr/api/v1/employees/<id>", methods=["PUT"])
+@api.route("/hr/api/v1/employees/<id>", methods=["PUT", "PATCH"])
 def update_employee(id):
     emp = extract_employee_from_request(request, fields)
     employees.update_one(

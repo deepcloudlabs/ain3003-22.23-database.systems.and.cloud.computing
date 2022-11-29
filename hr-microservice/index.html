@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HR Application</title>
+    <style>
+        @import url('css/bootstrap.css');
+        @import url('css/bootstrap-theme.css');
+        @import url('css/drag-and-drop.css');
+        @import url('css/toastr.css');
+    </style>
+    <script type="text/javascript" src="js/lib/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/lib/toastr.min.js"></script>
+    <script type="text/javascript" src="js/lib/i18next-1.7.7.js"></script>
+    <script type="text/javascript" src="js/lib/socket.io.js"></script>
+    <script type="text/javascript" src="js/lib/bootstrap.js"></script>
+    <script type="text/javascript" src="js/lib/knockout-3.4.2.debug.js"></script>
+    <script type="text/javascript" src="js/lib/ko-file.js"></script>
+    <script type="text/javascript" src="js/lib/knockout-localization.js"></script>
+    <script type="text/javascript" src="js/lib/knockout.validation.js"></script>
+    <script type="text/javascript" src="js/hr-config.js"></script>
+    <script type="text/javascript" src="js/hr-util.js"></script>
+    <script type="text/javascript" src="js/hr.js"></script>
+</head>
+<body>
+<p/>
+<div class="container">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <div class="col-md-10"></div>
+            <div class="col-md-2">
+                <button data-bind="click: changeLngTr" class="btn btn-success" data-i18n="buttonTurkish"></button>
+                <button data-bind="click: changeLngEn" class="btn btn-success" data-i18n="buttonEnglish"></button>
+            </div>
+            <img data-bind="attr: {src: employee.photo}" class="img-thumbnail photo"/>
+            <h3 class="panel-title" data-i18n="panelTitleEmployee"></h3>
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="photo" data-i18n="labelPhoto"></label>
+                <img class="img-thumbnail photo" data-bind="attr: { src: fileData().dataUrl }"/>
+                <label class="btn btn-info btn-file">
+                    <input type="file" style="display: none;" data-bind="fileInput: fileData" id="photo"/>
+                    <span data-i18n="buttonBrowse"></span>
+                </label>
+                <p/>
+                <div class="drop-zone" type="text" id="filedrag"
+                     data-bind="event: { drop: function (data,e) { $root.insertFile(e,data);},dragover: function(data,e){ $root.dragover(e);}}"></div>
+            </div>
+            <div class="form-group">
+                <label for="identityNo" data-i18n="labelIdentityNo"></label>
+                <input type="text" data-bind="value: employee.identity" id="identityNo" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="name" data-i18n="labelName"></label>
+                <input type="text" data-bind="value: employee.fullname" id="name" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="salary" data-i18n="labelSalary"></label>
+                <input type="text" data-bind="value: employee.salary" id="salary" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="iban" data-i18n="labelIban"></label>
+                <input type="text" data-bind="value: employee.iban" id="iban" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="department" data-i18n="labelDepartment"></label>
+                <select data-bind="options: departments, value: employee.department" id="department"
+                        class="form-control">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="jobstyle" data-i18n="labelJobStyle"></label>
+                <select data-bind="options: jobStyles, value: employee.jobStyle" id="jobstyle"
+                        class="form-control">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="birthYear" data-i18n="labelYear"></label>
+                <input type="text" data-bind="value: employee.birthYear" id="birthYear" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" data-i18n="buttonFind"
+                        data-bind="click: findEmployeeByIdentity, enable: employee.identity.isValid"></button>
+                <button class="btn btn-success" data-i18n="buttonFindAll" data-bind="click: findAllEmployees"></button>
+                <button class="btn btn-warning" data-i18n="buttonAdd"
+                        data-bind="click: addEmployee, enable: employee.isValid"></button>
+                <button class="btn btn-warning" data-i18n="buttonUpdate"
+                        data-bind="click: updateEmployee, enable: employee.isValid"></button>
+                <button class="btn btn-danger" data-i18n="buttonDelete"
+                        data-bind="click: deleteEmployeeByIdentity, enable: employee.identity.isValid"></button>
+            </div>
+        </div>
+    </div>
+    <div data-bind="visible: employees().length > 0" class="panel panel-primary">
+        <div class="panel-heading"><h2 class="panel-title" data-i18n="panelTitleEmployees"></h2></div>
+        <div class="panel-body">
+            <table id="employees" class="table table-responsive table-striped">
+                <thead>
+                <tr>
+                    <th data-i18n="columnNo"></th>
+                    <th data-i18n="columnPhoto"></th>
+                    <th data-i18n="columnIdentityNo"></th>
+                    <th data-i18n="columnName"></th>
+                    <th data-i18n="columnSalary"></th>
+                    <th data-i18n="columnIban"></th>
+                    <th data-i18n="columnDepartment"></th>
+                    <th data-i18n="columnFulltime"></th>
+                    <th data-i18n="columnYear"></th>
+                    <th data-i18n="columnOperations"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- ko foreach: employees-->
+                <tr data-bind="event: {click: $root.selectRow}">
+                    <td data-bind="text: $index() + 1"></td>
+                    <td><img data-bind="attr: {src: toSrcImage(photo)}" class="photo img-thumbnail"/></td>
+                    <td data-bind="text: identity"></td>
+                    <td data-bind="text: fullname"></td>
+                    <td data-bind="text: salary"></td>
+                    <td data-bind="text: iban"></td>
+                    <td data-bind="text: department"></td>
+                    <td data-bind="text: jobStyle"></td>
+                    <td data-bind="text: birthYear"></td>
+                    <td>
+                        <button class="btn btn-danger" data-i18n="buttonDelete"
+                                data-bind="click: $root.deleteEmployee"></button>
+                    </td>
+                </tr>
+                <!-- /ko -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

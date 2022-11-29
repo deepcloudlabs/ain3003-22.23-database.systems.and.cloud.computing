@@ -4,3 +4,4 @@ flask-cors
 flask-socketio
 pymongo
 websockets
+kafka-python
