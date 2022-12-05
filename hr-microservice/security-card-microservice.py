@@ -4,7 +4,7 @@ from kafka import KafkaConsumer
 from pymongo import MongoClient
 
 consumer = KafkaConsumer(
-    "hr-events",
+    "hr-events",  # topic name
     bootstrap_servers=["localhost:9092"],
     group_id="security-card",
     auto_offset_reset='earliest',

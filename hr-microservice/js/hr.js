@@ -96,6 +96,21 @@ class HRViewModel {
         this.handleError = (xhr) => {
             toastr.error(xhr.responseJSON);
         }
+        this.socket = io("ws://localhost:8100");
+        this.socket.on('connect', () => {
+            toastr.success("Connected to the server!")
+            console.log("Connected!")
+            this.socket.on('fire', (emp) => {
+                this.employees(
+                    this.employees().filter(e => e.identity != emp.employee.identity)
+                );
+                toastr.error(`${emp.employee.fullname} is fired!`)
+            });
+            this.socket.on('hire', (emp) => {
+                this.employees.push(emp.employee);
+                toastr.success(`${emp.employee.fullname} is hired!`)
+            });
+        });
         // bindings
         this.insertFile = this.insertFile.bind(this);
         this.addEmployee = this.addEmployee.bind(this);

@@ -1,8 +1,8 @@
-#region Kafka
+# region Kafka
 from kafka import KafkaProducer
 
 producer = KafkaProducer(bootstrap_servers=["localhost:9092"], value_serializer=lambda m: json.dumps(m).encode('utf-8'))
-#endregion
+# endregion
 
 # region MongoDB
 # DDD              : Domain Entity
@@ -52,6 +52,7 @@ def extract_employee_from_request(request, fields):
         emp["_id"] = emp["identity"]
     return emp
 
+
 # http://localhost:8100/hr/api/v1/employees/1
 @api.route("/hr/api/v1/employees/<id>", methods=["GET"])
 def get_employee_by_identity(id):
@@ -74,8 +75,9 @@ def get_employees():
 def add_employee():
     emp = extract_employee_from_request(request, fields)
     employees.insert_one(emp)
-    producer.send("hr-events",
+    producer.send("hr-events",  # topics
                   value={"identity": emp["_id"], "eventType": "HIRE_EMPLOYEE"})
+    socketio.emit('hire', {"employee": emp, "eventType": "HIRE_EMPLOYEE"})
     return jsonify(emp)
 
 
@@ -94,9 +96,11 @@ def update_employee(id):
 def remove_employee(id):
     emp = employees.find_one({"_id": id})
     employees.delete_one({"_id": id})
+    producer.send("hr-events",  # topics
+                  value={"identity": emp["_id"], "eventType": "FIRE_EMPLOYEE"})
+    socketio.emit('fire', {"employee": emp, "eventType": "FIRE_EMPLOYEE"})
     return jsonify(emp)
 
 
 # endregion
-
 socketio.run(api, port=8100)
