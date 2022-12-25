@@ -1,0 +1,235 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "CRM API",
+    "description": "CRM Application API",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:8100",
+  "basePath": "/crm/api/v1",
+  "tags": [
+    {
+      "name": "Customers",
+      "description": "API for customer"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/customers": {
+      "post": {
+        "tags": [
+          "customers"
+        ],
+        "description": "Create new customer in system",
+        "parameters": [
+          {
+            "name": "customer",
+            "in": "body",
+            "description": "customer that we want to create",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "New customer is created",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "customers"
+        ],
+        "summary": "Get all customers in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/customers"
+            }
+          }
+        }
+      }
+    },
+    "/customers/{identityNo}": {
+      "parameters": [
+        {
+          "name": "identityNo",
+          "in": "path",
+          "required": true,
+          "description": "Identity No of customer that we want to find",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "tags": [
+          "customers"
+        ],
+        "summary": "Get customer with given Identity No",
+        "responses": {
+          "200": {
+            "description": "customer is found",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete customer with given Identity No",
+        "tags": [
+          "customers"
+        ],
+        "responses": {
+          "200": {
+            "description": "customer is deleted",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update customer",
+        "tags": [
+          "customers"
+        ],
+        "parameters": [
+          {
+            "name": "customer",
+            "in": "body",
+            "description": "customer that we want to update",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "customer is updated",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update customer",
+        "tags": [
+          "customers"
+        ],
+        "parameters": [
+          {
+            "name": "customer",
+            "in": "body",
+            "description": "customer that we want to update",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "customer is updated",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "phone": {
+      "required": [
+        "countryCode",
+        "cityCode",
+        "number",
+        "type"
+      ],
+      "properties": {
+        "countryCode": {
+          "type": "number"
+        },
+        "cityCode": {
+          "type": "number"
+        },
+        "number": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HOME",
+            "BUSINESS",
+            "MOBILE"
+          ]
+        }
+      }
+    },
+    "customer": {
+      "required": [
+        "_id",
+        "firstName",
+        "lastName",
+        "email",
+        "photo",
+        "phones",
+        "birthYear"
+      ],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "email": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "birthYear": {
+          "type": "number"
+        },
+        "photo": {
+          "type": "string"
+        },
+        "phones": {
+          "type": "array",
+          "$ref": "#/definitions/phones"
+        }
+      }
+    },
+    "phones": {
+      "type": "array",
+      "$ref": "#/definitions/phone"
+    },
+    "customers": {
+      "type": "array",
+      "$ref": "#/definitions/customer"
+    }
+  }
+}

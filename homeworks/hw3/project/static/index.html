@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRM Application</title>
+    <style>
+        @import url("css/bootstrap.css");
+    </style>
+    <script type="text/javascript" src="js/lib/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/lib/i18next-1.7.7.js"></script>
+    <script type="text/javascript" src="js/lib/socket.io.js"></script>
+    <script type="text/javascript" src="js/lib/knockout-3.4.2.debug.js"></script>
+    <script type="text/javascript" src="js/lib/knockout-localization.js"></script>
+    <script type="text/javascript" src="js/lib/knockout.validation.min.js"></script>
+    <script type="text/javascript" src="js/lib/ko-file.js"></script>
+    <script type="text/javascript" src="js/crm-config.js"></script>
+    <script type="text/javascript" src="js/crm-util.js"></script>
+    <script src="js/customer.js"></script>
+    <script type="text/javascript" src="js/crm.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+</head>
+<body>
+<p/>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Customer</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label" for="identityNo">Identity No</label>
+                <input id="identityNo"
+                       type="text"
+                       data-bind="value: customer.id"
+                       class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="firstName">First Name</label>
+                <input id="firstName"
+                       type="text"
+                       data-bind="value: customer.firstName"
+                       class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="lastName">Last Name</label>
+                <input id="lastName"
+                       type="text"
+                       data-bind="value: customer.lastName"
+                       class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="email">E-mail</label>
+                <input id="email"
+                       data-bind="value: customer.email"
+                       type="text"
+                       class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="birthYear">Birth Year</label>
+                <input id="birthYear"
+                       data-bind="value: customer.birthYear"
+                       type="text"
+                       class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="photo">Photo</label>
+                <img data-bind="attr: {src: fileData().dataUrl}"
+                     style="width: 64px; height: 64px;"/>
+                <input type="file"
+                       id="photo"
+                       data-bind="fileInput: fileData"
+                       class="form-control"/>
+            </div>
+            <p></p>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Phones</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <table class="table table-bordered table-hover table-striped table-responsive">
+                            <thead>
+                            <tr>
+                                <th>Country Code</th>
+                                <th>City Code</th>
+                                <th>Number</th>
+                                <th>Type</th>
+                                <th>Operations</th>
+                            </tr>
+                            <tr>
+                                <button class="btn btn-success" data-bind="click: addPhone">Add Phone</button>
+                            </tr>
+                            <p></p>
+                            </thead>
+                            <tbody data-bind="foreach: {data: customer.phones, as: 'phone'}">
+                            <tr>
+                                <td><input type="text" class="form-control" data-bind="value: phone.countryCode"></td>
+                                <td><input type="text" class="form-control" data-bind="value: phone.cityCode"></td>
+                                <td><input type="text" class="form-control" data-bind="value: phone.number"></td>
+                                <td>
+                                    <select class="form-select" data-bind="value: phone.type">
+                                        <option>HOME</option>
+                                        <option>BUSINESS</option>
+                                        <option>MOBILE</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button data-bind="click: $root.removePhone" class="btn btn-danger">Delete</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            <p></p>
+            <div class="mb-3">
+                <button data-bind="click: addCustomer"
+                        class="btn btn-info">Add
+                </button>
+                <button data-bind="click: updateCustomer"
+                        class="btn btn-warning">Update
+                </button>
+                <button data-bind="click: removeCustomer"
+                        class="btn btn-danger">Delete
+                </button>
+                <button data-bind="click: retrieveCustomer"
+                        class="btn btn-success">Find
+                </button>
+                <button data-bind="click: retrieveAllCustomers"
+                        class="btn btn-success">Find All
+                </button>
+            </div>
+        </div>
+    </div>
+    <p></p>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Customers</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-hover table-striped table-responsive">
+                <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Identity No</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>E-Mail</th>
+                    <th>Operations</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: {data: customers, as: 'cust'}">
+                <tr data-bind="click: $root.copyCustomerAtRow">
+                    <td><img data-bind="attr: {src: cust.photo}"
+                             style="width: 32px; height: 32px;"/></td>
+                    <td data-bind="text: cust._id"></td>
+                    <td data-bind="text: cust.firstName"></td>
+                    <td data-bind="text: cust.lastName"></td>
+                    <td data-bind="text: cust.email"></td>
+                    <td data-bind="text: cust.birthYear"></td>
+                    <td>
+                        <button data-bind="click: $root.removeCustomerByRow"
+                                class="btn btn-danger">Delete
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

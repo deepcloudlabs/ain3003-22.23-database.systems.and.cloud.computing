@@ -1,0 +1,10 @@
+eventlet
+Flask
+flask-cors
+flask-socketio
+pymongo
+requests
+schedule
+websockets
+flask-swagger-ui
+kafka-python
