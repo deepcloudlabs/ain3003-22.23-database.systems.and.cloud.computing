@@ -8,3 +8,4 @@ schedule
 websockets
 flask-swagger-ui
 kafka-python
+resource

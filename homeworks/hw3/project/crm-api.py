@@ -1,8 +1,12 @@
+import json
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from pymongo import MongoClient
 from flask_swagger_ui import get_swaggerui_blueprint
+
+from utility.crm import extract_customer_from_request
 
 """
 Flask/SocketIO/CORS configuration
@@ -24,7 +28,7 @@ SWAGGER_URL = '/api/docs'
 API_URL = '/static/swagger.json'
 
 apiDoc = get_swaggerui_blueprint(
-    SWAGGER_URL,
+    SWAGGER_URL,  # Swagger UI static files will be mapped to '{SWAGGER_URL}/dist/'
     API_URL,
     config={
         'app_name': "CRM"
@@ -40,39 +44,39 @@ fields = [
 
 @api.route("/crm/api/v1/customers", methods=["GET"])
 def get_customers():
-    pass
-    # TODO: get customers by pagination
-    # TODO: return customers in the page as JSON
+    return json.dumps([cust for cust in customers.find({})])
 
 
 @api.route("/crm/api/v1/customers/<identity>", methods=["GET"])
 def get_employee_by_identity(identity):
-    pass
-    # TODO: get customer by identity
-    # TODO: return found customer as JSON
+    return jsonify(customers.find_one({"_id": identity}))
 
 
 @api.route("/crm/api/v1/customers", methods=["POST"])
 def add_customer():
-    # TODO: create new customer
-    # TODO: create an event and send it through Websocket and Kafka
-    # TODO: Event: {"eventType": "CUSTOMER_ACQUIRED", "eventData": customer}
+    customer = extract_customer_from_request(request, fields)
+    customers.insert_one(customer)
+    socketio.emit('customer-events', {"eventType": "CUSTOMER_ACQUIRED", "eventData": customer})
     return jsonify({"status": "ok"})
 
 
 @api.route("/crm/api/v1/customers/<identity>", methods=["PUT"])
 def update_customer(identity):
-    # TODO: update customer
+    customer = extract_customer_from_request(request, fields)
+    customers.find_one_and_update(
+        {"_id": identity},
+        {"$set": customer},
+        upsert=False
+    )
     return jsonify({"status": "ok"})
 
 
 @api.route("/crm/api/v1/customers/<identity>", methods=["DELETE"])
 def remove_customer(identity):
-    # TODO: release a customer by identity
-    # TODO: create an event and send it through Websocket and Kafka
-    # TODO: Event: {"eventType": "CUSTOMER_RELEASED", "eventData": customer}
-    # TODO: return removed customer as JSON
-    pass
+    customer = customers.find_one({"_id": identity})
+    customers.delete_one({"_id": identity})
+    socketio.emit('customer-events', {"eventType": "CUSTOMER_RELEASED", "eventData": customer})
+    return jsonify(customer)
 
 
 socketio.run(api, port=8100)
